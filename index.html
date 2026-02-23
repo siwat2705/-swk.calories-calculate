@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>swk.calories calculate</title>
+  <style>
+    body {
+      font-family: 'Prompt', Arial, sans-serif;
+      background: url("IMG/img1.jpg") no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      width: 380px;
+      animation: fadeIn 0.6s ease-in-out;
+      text-align: center;
+      overflow-y: auto;
+      max-height: 95vh;
+    }
+
+    .header-img {
+      width: 80px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2E7D32;
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      color: #388E3C;
+      margin-bottom: 6px;
+      display: block;
+      text-align: left;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 14px;
+      border: 1px solid #A5D6A7;
+      border-radius: 8px;
+      background-color: #F9FFF9;
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #4CAF50;
+      outline: none;
+      box-shadow: 0 0 6px rgba(76,175,80,0.4);
+    }
+
+    button {
+      background: linear-gradient(135deg, #4CAF50, #43A047);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      transition: 0.3s;
+      margin-top: 5px;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #43A047, #388E3C);
+      transform: translateY(-2px);
+    }
+
+    #result, #food-result {
+      margin-top: 18px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.6;
+      padding: 10px;
+      background: #E8F5E9;
+      border-radius: 8px;
+      color: #2E7D32;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    }
+
+    hr {
+      margin: 25px 0;
+      border: none;
+      border-top: 2px dashed #A5D6A7;
+    }
+
+    .hidden { display: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #suggestionBox {
+      margin-top: 8px;
+      text-align: left;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- หน้าล็อกอิน -->
+<div class="container" id="login-page">
+  <img src="IMG/bb91fff4179419ec1eb922e425f660f6-removebg-preview (1).png" alt="login" class="header-img">
+  <h2>เข้าสู่ระบบ</h2>
+  <form id="login-form">
+    <label for="email">G-mail:</label>
+    <input type="email" id="email" required>
+    <label for="fullname">ชื่อ-นามสกุล:</label>
+    <input type="text" id="fullname" required>
+    <button type="submit">เข้าสู่เว็บไซต์</button>
+  </form>
+</div>
+
+<!-- หน้าโปรแกรมหลัก -->
+<div class="container hidden" id="main-page">
+  <img src="IMG/bb91fff4179419ec1eb922e425f660f6-removebg-preview (1).png" alt="health" class="header-img">
+  <h2>โปรแกรมคำนวณแคลอรี่</h2>
+
+  <form id="calorie-form">
+    <label for="gender">เพศ:</label>
+    <select id="gender">
+      <option value="male">ชาย</option>
+      <option value="female">หญิง</option>
+    </select>
+
+    <label for="age">อายุ (ปี):</label>
+    <input type="number" id="age" required>
+
+    <label for="weight">น้ำหนัก (กิโลกรัม):</label>
+    <input type="number" id="weight" required>
+
+    <label for="height">ส่วนสูง (เซนติเมตร):</label>
+    <input type="number" id="height" required>
+
+    <label for="activity">ระดับกิจกรรม:</label>
+    <select id="activity">
+      <option value="1.2">ไม่ออกกำลังกาย</option>
+      <option value="1.375">ออกกำลังกายเล็กน้อย (1-3 วัน/สัปดาห์)</option>
+      <option value="1.55">ออกกำลังกายปานกลาง (3-5 วัน/สัปดาห์)</option>
+      <option value="1.725">ออกกำลังกายหนัก (6-7 วัน/สัปดาห์)</option>
+      <option value="1.9">ออกกำลังกายหนักมาก (2 ครั้ง/วัน)</option>
+    </select>
+
+    <label for="goal">เป้าหมาย:</label>
+    <select id="goal">
+      <option value="maintain">รักษาน้ำหนัก</option>
+      <option value="lose">ลดน้ำหนัก</option>
+      <option value="gain">เพิ่มน้ำหนัก</option>
+    </select>
+
+    <button type="submit">คำนวณ</button>
+  </form>
+
+  <hr>
+  <img src="IMG/img3.png" alt="food" class="header-img">
+  <h2>คำนวณแคลอรี่อาหาร/เครื่องดื่ม</h2>
+<hr>
+  <label for="searchFood">🔍 ค้นหารายการอาหาร:</label>
+  <div style="display:flex; gap:6px; margin-bottom:10px;">
+    <input type="text" id="searchFood" placeholder="พิมพ์ชื่ออาหาร เช่น ข้าว, ชา, นม..." style="flex:1;">
+    <button type="button" id="searchButton" style="width:auto; padding:10px;">ค้นหา</button>
+    <button type="button" id="resetButton" style="width:auto; padding:10px; background:linear-gradient(135deg,#757575,#424242);">รีเซ็ต</button>
+  </div>
+<form id="food-form">
+  <label for="food">เลือกอาหาร/ขนม/ของทานเล่น/เครื่องดื่ม:</label>
+  <select id="food" size="20" style="height:auto; width:100%;">
+
+    <!-- 🍱 อาหารจานหลัก -->
+    <optgroup label="🍱 อาหารจานหลัก">
+      <option value="250">แซนวิชโบโลน่า (250 kcal)</option>
+      <option value="230">แซนวิชแฮมชีส (230 kcal)</option>
+      <option value="290">แซนวิชทูน่า (290 kcal)</option>
+      <option value="400">ข้าวผัดกระเพราหมู (400 kcal)</option>
+      <option value="450">ข้าวมันไก่ (450 kcal)</option>
+      <option value="330">ข้าวหมูกระเทียม (330 kcal)</option>
+      <option value="250">โจ๊กหมู (250 kcal)</option>
+      <option value="420">ข้าวผัดกะเพราไก่ไข่ดาว (420 kcal)</option>
+      <option value="380">ข้าวผัดพริกแกงหมูกรอบ (380 kcal)</option>
+      <option value="430">ข้าวผัดกุ้ง (430 kcal)</option>
+      <option value="390">ข้าวไข่เจียวหมูสับ (390 kcal)</option>
+      <option value="440">ข้าวไก่เทอริยากิ (440 kcal)</option>
+      <option value="370">ข้าวหมูทอดกระเทียม (370 kcal)</option>
+      <option value="410">ข้าวผัดพะแนงไก่ (410 kcal)</option>
+      <option value="360">ข้าวแกงเขียวหวานไก่ (360 kcal)</option>
+      <option value="400">ข้าวราดผัดพริกเผาหมูกรอบ (400 kcal)</option>
+      <option value="340">ข้าวหน้าปลาแซลมอนเทอริยากิ (340 kcal)</option>
+      <option value="270">ข้าวต้มหมู (270 kcal)</option>
+      <option value="290">ข้าวต้มกุ้ง (290 kcal)</option>
+      <option value="300">สปาเกตตี้ขี้เมาทะเล (300 kcal)</option>
+      <option value="320">สปาเกตตี้คาโบนาร่า (320 kcal)</option>
+      <option value="350">สปาเกตตี้ผัดขี้เมาไก่ (350 kcal)</option>
+      <option value="200">ไก่ย่างพร้อมข้าวเหนียว (200 kcal)</option>
+      <option value="240">อกไก่นุ่ม (240 kcal)</option>
+      <option value="260">เกี๊ยวกุ้งน้ำ (260 kcal)</option>
+      <option value="230">บะหมี่เกี๊ยวกุ้ง (230 kcal)</option>
+      <option value="210">ต้มจับฉ่าย (210 kcal)</option>
+      <option value="320">ข้าวหมูแดง (320 kcal)</option>
+      <option value="330">ข้าวหมูกรอบ (330 kcal)</option>
+      <option value="310">ข้าวหน้าเป็ด (310 kcal)</option>
+    </optgroup>
+
+    <!-- 🍩 ขนมหวาน/เบเกอรี่ -->
+    <optgroup label="🍩 ขนมหวาน/เบเกอรี่">
+      <option value="250">ครัวซองต์ช็อกโกแลต (250 kcal)</option>
+      <option value="220">ครัวซองต์แฮมชีส (220 kcal)</option>
+      <option value="190">โดนัทเคลือบน้ำตาล (190 kcal)</option>
+      <option value="160">เค้กเนยสด (160 kcal)</option>
+      <option value="210">เค้กช็อกโกแลต (210 kcal)</option>
+      <option value="130">พายเผือก (130 kcal)</option>
+      <option value="140">พายไก่ (140 kcal)</option>
+      <option value="170">พายแอปเปิ้ล (170 kcal)</option>
+      <option value="120">กล้วยอบ (120 kcal)</option>
+      <option value="100">ขนมปังสังขยา (100 kcal)</option>
+      <option value="180">ขนมปังไส้ถั่วแดง (180 kcal)</option>
+      <option value="190">ขนมปังไส้เผือก (190 kcal)</option>
+      <option value="160">ขนมปังไส้เนยน้ำตาล (160 kcal)</option>
+      <option value="150">คุกกี้ช็อกโกแลตชิพ (150 kcal)</option>
+      <option value="130">บราวนี่ (130 kcal)</option>
+      <option value="180">ชูครีมวนิลา (180 kcal)</option>
+      <option value="200">เอแคลร์ช็อกโกแลต (200 kcal)</option>
+      <option value="220">โดนัทไส้คัสตาร์ด (220 kcal)</option>
+      <option value="150">เค้กโรลสตรอว์เบอร์รี่ (150 kcal)</option>
+      <option value="180">เค้กโรลกาแฟ (180 kcal)</option>
+      <option value="250">พายไก่พริกไทยดำ (250 kcal)</option>
+      <option value="200">ทาร์ตไข่ (200 kcal)</option>
+      <option value="120">วาฟเฟิลเนย (120 kcal)</option>
+      <option value="140">วาฟเฟิลช็อกโกแลต (140 kcal)</option>
+      <option value="100">พุดดิ้งนมสด (100 kcal)</option>
+      <option value="130">เยลลี่ผลไม้ (130 kcal)</option>
+      <option value="160">บัวลอยเผือกพร้อมทาน (160 kcal)</option>
+      <option value="150">เฉาก๊วยนมสด (150 kcal)</option>
+      <option value="180">ขนมชั้น (180 kcal)</option>
+      <option value="190">สังขยาฟักทองถ้วย (190 kcal)</option>
+    </optgroup>
+
+    <!-- 🍢 ของทานเล่น -->
+    <optgroup label="🍢 ของทานเล่น">
+      <option value="180">ไก่ป๊อป (180 kcal)</option>
+      <option value="200">นักเก็ตไก่ (200 kcal)</option>
+      <option value="220">นักเก็ตปลา (220 kcal)</option>
+      <option value="250">ไก่กรอบ (250 kcal)</option>
+      <option value="230">ไส้กรอกชีส (230 kcal)</option>
+      <option value="210">ปีกไก่ทอด (210 kcal)</option>
+      <option value="190">ข้าวโพดอบชีส (190 kcal)</option>
+      <option value="200">เฟรนช์ฟรายส์ (200 kcal)</option>
+      <option value="180">หมูปิ้งไม้ละ (180 kcal)</option>
+      <option value="160">ลูกชิ้นปลา (160 kcal)</option>
+      <option value="170">ลูกชิ้นหมูปิ้ง (170 kcal)</option>
+      <option value="190">ปลาทอดชิ้น (190 kcal)</option>
+      <option value="150">ขนมจีบหมู (150 kcal)</option>
+      <option value="140">ขนมจีบกุ้ง (140 kcal)</option>
+      <option value="180">ฮะเก๋า (180 kcal)</option>
+      <option value="160">ซาลาเปาหมูสับ (160 kcal)</option>
+      <option value="170">ซาลาเปาไส้ครีม (170 kcal)</option>
+      <option value="190">ปอเปี๊ยะทอด (190 kcal)</option>
+      <option value="200">เกี๊ยวซ่า (200 kcal)</option>
+      <option value="220">นักเก็ตมันฝรั่ง (220 kcal)</option>
+      <option value="210">ปาท่องโก๋จิ้มนมข้น (210 kcal)</option>
+      <option value="160">ข้าวโพดอบเนย (160 kcal)</option>
+      <option value="190">ไข่ต้ม (190 kcal)</option>
+      <option value="250">ปีกไก่บาร์บีคิว (250 kcal)</option>
+      <option value="200">หมึกอบแห้ง (200 kcal)</option>
+    </optgroup>
+
+    <!-- 🧃 เครื่องดื่ม -->
+    <optgroup label="🧃 เครื่องดื่ม">
+      <option value="150">ชาเขียวพร้อมดื่ม (150 kcal)</option>
+      <option value="180">ชานมไข่มุก (180 kcal)</option>
+      <option value="130">กาแฟเย็น (130 kcal)</option>
+      <option value="100">ชาดำเย็น (100 kcal)</option>
+      <option value="140">โอวัลติน (140 kcal)</option>
+      <option value="150">ไมโล (150 kcal)</option>
+      <option value="120">นมถั่วเหลืองไวตามิ้ลค์ (120 kcal)</option>
+      <option value="110">นมโฟร์โมสต์จืด (110 kcal)</option>
+      <option value="150">นมรสช็อกโกแลต (150 kcal)</option>
+      <option value="180">โยเกิร์ตดื่มบีทาเก้น (180 kcal)</option>
+      <option value="130">นมเปรี้ยวดัชมิลล์ (130 kcal)</option>
+      <option value="200">น้ำส้มพร้อมดื่ม (200 kcal)</option>
+      <option value="170">น้ำองุ่น (170 kcal)</option>
+      <option value="160">น้ำแอปเปิ้ล (160 kcal)</option>
+      <option value="250">โค้กกระป๋อง (250 kcal)</option>
+      <option value="150">เป๊ปซี่ (150 kcal)</option>
+      <option value="120">แฟนต้า (120 kcal)</option>
+      <option value="170">สไปร์ท (170 kcal)</option>
+      <option value="0">น้ำดื่มแร่เพียวไลฟ์ (0 kcal)</option>
+      <option value="100">ชามะนาวพร้อมดื่ม (100 kcal)</option>
+      <option value="120">ชามะลิพร้อมดื่ม (120 kcal)</option>
+      <option value="80">อเมริกาโน่เย็น (80 kcal)</option>
+      <option value="140">ลาเต้เย็น (140 kcal)</option>
+      <option value="180">คาปูชิโน่เย็น (180 kcal)</option>
+      <option value="90">เอสเพรสโซ่เย็น (90 kcal)</option>
+    </optgroup>
+
+<hr>
+
+
+  </select>
+</form>
+
+
+    <div id="suggestionBox"></div>
+
+    <label for="quantity">จำนวนจาน/แก้ว:</label>
+    <input type="number" id="quantity" value="1" min="1">
+
+    <button type="button" onclick="calculateFood()">เพิ่ม</button>
+    <button type="button" onclick="resetCalories()" style="background:linear-gradient(135deg,#E53935,#D32F2F);">
+      ล้างข้อมูลแคลอรี่
+    </button>
+  </form>
+
+  <div id="food-result"></div>
+  <div id="result"></div>
+</div>
+
+<script>
+  // --- ระบบล็อกอิน ---
+  document.getElementById("login-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const fullname = document.getElementById("fullname").value;
+    if(email && fullname){
+      document.getElementById("login-page").classList.add("hidden");
+      document.getElementById("main-page").classList.remove("hidden");
+      alert("ยินดีต้อนรับ " + fullname);
+    }
+  });
+
+  // --- โปรแกรมคำนวณแคลอรี่ ---
+  document.getElementById('calorie-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const gender = document.getElementById('gender').value;
+    const age = parseInt(document.getElementById('age').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const activity = parseFloat(document.getElementById('activity').value);
+    const goal = document.getElementById('goal').value;
+
+    let bmr;
+    if (gender === 'male') {
+      bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    } else {
+      bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    }
+
+    let dailyCalories = bmr * activity;
+    let message = "";
+
+    if (goal === "maintain") {
+      message = `คุณควรได้รับแคลอรี่ต่อวันประมาณ <b>${Math.round(dailyCalories)}</b> kcal เพื่อ <b>รักษาน้ำหนัก</b><br>`;
+    } else if (goal === "lose") {
+      message = `คุณควรได้รับแคลอรี่ต่อวันประมาณ <b>${Math.round(dailyCalories - 500)}</b> kcal เพื่อ <b>ลดน้ำหนัก</b><br>`;
+    } else if (goal === "gain") {
+      message = `คุณควรได้รับแคลอรี่ต่อวันประมาณ <b>${Math.round(dailyCalories + 500)}</b> kcal เพื่อ <b>เพิ่มน้ำหนัก</b><br>`;
+    }
+
+    const heightM = height / 100;
+    const bmi = weight / (heightM * heightM);
+    const minNormal = 18.5 * (heightM * heightM);
+    const maxNormal = 22.9 * (heightM * heightM);
+    let bmiMessage = "";
+
+    if (bmi < 18.5) {
+      const needGain = (minNormal - weight).toFixed(1);
+      bmiMessage = `<span style="color:red;">น้ำหนักของคุณต่ำกว่ามาตรฐาน</span><br>คุณควรเพิ่มน้ำหนักประมาณ <b>${needGain}</b> กก.`;
+    } else if (bmi <= 22.9) {
+      bmiMessage = `<span style="color:green;">สมส่วน อยู่ในเกณฑ์มาตรฐาน</span>`;
+    } else {
+      const needLose = (weight - maxNormal).toFixed(1);
+      bmiMessage = `<span style="color:red;">น้ำหนักของคุณสูงกว่ามาตรฐาน</span><br>คุณควรลดน้ำหนักประมาณ <b>${needLose}</b> กก.`;
+    }
+
+    message += `<hr>ค่า BMI ของคุณคือ <b>${bmi.toFixed(1)}</b><br>${bmiMessage}`;
+    document.getElementById('result').innerHTML = message;
+  });
+
+  // --- คำนวณอาหาร ---
+  let totalCalories = 0;
+  function calculateFood(){
+    const food = parseInt(document.getElementById("food").value);
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const calories = food * quantity;
+    totalCalories += calories;
+    document.getElementById("food-result").innerHTML = `แคลอรี่ที่ได้รับรวม: <b>${totalCalories}</b> kcal`;
+  }
+
+  function resetCalories(){
+    totalCalories = 0;
+    document.getElementById("food-result").innerHTML = "ล้างข้อมูลเรียบร้อยแล้ว ✅";
+  }
+
+  // --- ระบบค้นหาอาหาร + แนะนำ ---
+  const searchBox = document.getElementById("searchFood");
+  const foodList = document.getElementById("food");
+  const suggestionBox = document.getElementById("suggestionBox");
+
+  searchBox.addEventListener("input", function(){
+    const filter = this.value.trim().toLowerCase();
+    const options = foodList.options;
+    let found = false;
+    let suggestions = [];
+
+    for (let i = 0; i < options.length; i++) {
+      const text = options[i].text.toLowerCase();
+      if (text.includes(filter)) {
+        options[i].style.display = "";
+        found = true;
+      } else {
+        options[i].style.display = "none";
+        if (filter && text.startsWith(filter[0])) suggestions.push(options[i].text);
+      }
+    }
+
+    if (!filter) {
+      suggestionBox.innerHTML = "";
+      for (let i = 0; i < options.length; i++) options[i].style.display = "";
+      return;
+    }
+
+    if (!found) {
+      suggestionBox.innerHTML = `<span style="color:red;">❌ ไม่พบรายการอาหารที่ค้นหา "${this.value}"</span>`;
+      if (suggestions.length > 0) {
+        const similar = suggestions.slice(0, 5).map(s => `<div style="color:#388E3C;">• ${s}</div>`).join("");
+        suggestionBox.innerHTML += `<div style="margin-top:6px;">อาจหมายถึง:<br>${similar}</div>`;
+      }
+    } else {
+      suggestionBox.innerHTML = "";
+    }
+  });
+  // --- "ไฮเปอร์ลิงค์" ---
+  // ================= AI FOOD CAMERA =================// 
+</script>
+</body>
+</html>
